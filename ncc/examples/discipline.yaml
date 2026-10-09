@@ -1,0 +1,90 @@
+name: Discipline
+version: "0.1.0"
+description: >
+  Operationalized discipline as rule adherence, self-regulation capacity,
+  and sustained execution against goals.
+philosophy_note: >
+  Informed by CDRILS (military virtue framework) and self-regulation
+  theory (Baumeister / Vohs). Discipline here is not blind obedience
+  but principled, goal-directed constraint.
+aggregation_method: geometric_mean
+changelog:
+  - "0.1.0: initial model (rule adherence, self-regulation, execution consistency)"
+
+facets:
+  - name: RuleAdherence
+    description: Compliance with declared standards, protocols, or self-imposed rules under temptation to deviate.
+    weight: 1.0
+    indicators:
+      - name: protocol_violation_rate
+        description: Frequency of deviations from known rules / standards.
+        signal_type: ratio
+        function: "lambda x: max(0.0, 1.0 - x)"
+        weight: 1.2
+        bounds: [0.0, 1.0]
+        meta:
+          tags: [audit]
+          observation_key: protocol_violation_rate
+      - name: edge_case_compliance
+        description: Adherence under ambiguous or low-surveillance conditions.
+        signal_type: ratio
+        function: ratio_clamp
+        weight: 1.0
+        bounds: [0.0, 1.0]
+        meta:
+          tags: [audit]
+          observation_key: edge_case_compliance
+      - name: self_report_discipline
+        description: Self-reported discipline score from validated instrument.
+        signal_type: self_report
+        function: ratio_clamp
+        weight: 0.5
+        bounds: [0.0, 1.0]
+        meta:
+          observation_key: self_report_discipline
+
+  - name: SelfRegulation
+    description: Ability to modulate impulses and emotional states in service of long-term goals.
+    weight: 1.0
+    indicators:
+      - name: ego_depletion_recovery
+        description: Speed of performance recovery after a known depleting task.
+        signal_type: latency
+        function: inverse_latency
+        weight: 1.0
+        bounds: [0.0, 1.0]
+        meta:
+          tags: [audit]
+          observation_key: ego_depletion_recovery
+      - name: distraction_rejection_rate
+        description: Proportion of irrelevant distractors ignored during a focal task.
+        signal_type: ratio
+        function: ratio_clamp
+        weight: 1.1
+        bounds: [0.0, 1.0]
+        meta:
+          tags: [audit]
+          observation_key: distraction_rejection_rate
+
+  - name: ExecutionConsistency
+    description: Regularity of goal-directed action over time, avoiding boom-bust cycles.
+    weight: 0.9
+    indicators:
+      - name: schedule_adherence_variance
+        description: Low variance in daily / weekly adherence to a planned schedule.
+        signal_type: ratio
+        function: "lambda x: max(0.0, 1.0 - x)"
+        weight: 1.0
+        bounds: [0.0, 1.0]
+        meta:
+          tags: [audit]
+          observation_key: schedule_adherence_variance
+      - name: streak_maintenance
+        description: Length of uninterrupted adherence sequences.
+        signal_type: count
+        function: inverse_latency
+        weight: 0.9
+        bounds: [0.0, 1.0]
+        meta:
+          tags: [audit]
+          observation_key: streak_maintenance

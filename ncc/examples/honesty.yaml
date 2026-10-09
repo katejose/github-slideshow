@@ -1,0 +1,100 @@
+name: Honesty
+version: "0.1.0"
+description: >
+  A versioned proxy for the normative concept of honesty.
+  This is not "the" definition of honesty; it is an operationalized
+  stance intended for behavioural scoring contexts.
+philosophy_note: >
+  Assumes honesty is a communicative virtue:
+  truthfulness in statement + transparency in omission + consistency over time.
+  Influenced by Bernard Williams' taxonomy (truthfulness as accuracy + sincerity).
+aggregation_method: weighted_mean
+changelog:
+  - "0.1.0: initial three-facet model (veracity, transparency, temporal consistency)"
+
+facets:
+  - name: Veracity
+    description: Correctness of explicit statements against independently verifiable facts.
+    weight: 1.0
+    indicators:
+      - name: factual_accuracy_rate
+        description: Proportion of verifiable claims that match ground truth.
+        signal_type: ratio
+        function: ratio_clamp
+        weight: 1.2
+        bounds: [0.0, 1.0]
+        meta:
+          tags: [audit]
+          observation_key: factual_accuracy_rate
+      - name: contradiction_density
+        description: Number of self-contradictions per unit of discourse.
+        signal_type: count
+        function: "lambda x: max(0.0, 1.0 - x)"
+        weight: 1.0
+        bounds: [0.0, 1.0]
+        meta:
+          tags: [audit]
+          observation_key: contradiction_density
+      - name: calibrated_confidence
+        description: How well stated confidence matches actual accuracy.
+        signal_type: ratio
+        function: zscore_clip
+        weight: 0.8
+        bounds: [0.0, 1.0]
+        meta:
+          tags: [audit]
+          observation_key: calibrated_confidence
+          args: [mu, sigma, val]
+
+  - name: Transparency
+    description: Willingness to disclose relevant information rather than strategically omit.
+    weight: 0.9
+    indicators:
+      - name: omission_rate
+        description: Proportion of material facts left unstated when contextually relevant.
+        signal_type: ratio
+        function: "lambda x: max(0.0, 1.0 - x)"
+        weight: 1.0
+        bounds: [0.0, 1.0]
+        meta:
+          tags: [audit]
+          observation_key: omission_rate
+      - name: proactive_disclosure
+        description: Frequency of voluntarily providing context beyond direct questions.
+        signal_type: frequency
+        function: inverse_latency
+        weight: 0.9
+        bounds: [0.0, 1.0]
+        meta:
+          observation_key: proactive_disclosure
+      - name: self_report_honesty
+        description: Self-reported honesty score from a validated instrument.
+        signal_type: self_report
+        function: ratio_clamp
+        weight: 0.5
+        bounds: [0.0, 1.0]
+        meta:
+          observation_key: self_report_honesty
+
+  - name: TemporalConsistency
+    description: Stability of truth-values across time and re-tellings.
+    weight: 0.8
+    indicators:
+      - name: recall_drift
+        description: Magnitude of change between original and later recall of the same event.
+        signal_type: ratio
+        function: "lambda x: max(0.0, 1.0 - x)"
+        weight: 1.0
+        bounds: [0.0, 1.0]
+        meta:
+          tags: [audit]
+          observation_key: recall_drift
+      - name: statement_persistence
+        description: Fraction of previous statements reaffirmed rather than revised.
+        signal_type: proportion
+        function: ratio_clamp
+        weight: 0.8
+        bounds: [0.0, 1.0]
+        meta:
+          tags: [audit]
+          observation_key: statement_persistence

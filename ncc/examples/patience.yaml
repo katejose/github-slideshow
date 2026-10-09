@@ -1,0 +1,90 @@
+name: Patience
+version: "0.1.0"
+description: >
+  Operationalized patience as delay tolerance and impulse modulation
+  in goal-directed contexts.
+philosophy_note: >
+  Draws on delay-discounting research (behavioral economics) and
+  virtue-ethics patience as "endurance in the face of frustration".
+  Not equated with passivity; includes calibrated waiting vs. strategic action.
+aggregation_method: weighted_mean
+changelog:
+  - "0.1.0: initial model (delay tolerance, frustration resilience, strategic timing)"
+
+facets:
+  - name: DelayTolerance
+    description: Willingness to accept later rather than sooner rewards when rationally appropriate.
+    weight: 1.0
+    indicators:
+      - name: discount_rate_k
+        description: Hyperbolic discounting parameter k (lower = more patient).
+        signal_type: ratio
+        function: "lambda x: max(0.0, min(1.0, 1.0 / (1.0 + x)))"
+        weight: 1.2
+        bounds: [0.0, 1.0]
+        meta:
+          tags: [audit]
+          observation_key: discount_rate_k
+      - name: wait_time_accepted
+        description: Maximum delay accepted for a standardised reward trade-off.
+        signal_type: latency
+        function: inverse_latency
+        weight: 1.0
+        bounds: [0.0, 1.0]
+        meta:
+          tags: [audit]
+          observation_key: wait_time_accepted
+
+  - name: FrustrationResilience
+    description: Maintenance of goal-directed behaviour when progress is obstructed.
+    weight: 0.9
+    indicators:
+      - name: task_resumption_rate
+        description: Rate at which an interrupted task is resumed within a time window.
+        signal_type: proportion
+        function: ratio_clamp
+        weight: 1.0
+        bounds: [0.0, 1.0]
+        meta:
+          tags: [audit]
+          observation_key: task_resumption_rate
+      - name: negative_reactivity_latency
+        description: Time between frustration trigger and measured emotional / action spike.
+        signal_type: latency
+        function: inverse_latency
+        weight: 1.0
+        bounds: [0.0, 1.0]
+        meta:
+          tags: [audit]
+          observation_key: negative_reactivity_latency
+      - name: self_report_patience
+        description: Self-reported patience score from validated instrument.
+        signal_type: self_report
+        function: ratio_clamp
+        weight: 0.5
+        bounds: [0.0, 1.0]
+        meta:
+          observation_key: self_report_patience
+
+  - name: StrategicTiming
+    description: Discriminating between productive waiting and mere procrastination.
+    weight: 0.8
+    indicators:
+      - name: signal_to_noise_wait_ratio
+        description: Ratio of waits justified by information gain vs. total waits observed.
+        signal_type: ratio
+        function: ratio_clamp
+        weight: 1.1
+        bounds: [0.0, 1.0]
+        meta:
+          tags: [audit]
+          observation_key: signal_to_noise_wait_ratio
+      - name: premature_action_rate
+        description: Frequency of acting before a critical decision threshold was reached.
+        signal_type: ratio
+        function: "lambda x: max(0.0, 1.0 - x)"
+        weight: 1.0
+        bounds: [0.0, 1.0]
+        meta:
+          tags: [audit]
+          observation_key: premature_action_rate
