@@ -1,0 +1,16 @@
+{
+  "Veracity": {
+    "factual_accuracy_rate": 0.92,
+    "contradiction_density": 0.05,
+    "calibrated_confidence": {"mu": 0.75, "sigma": 0.12, "val": 0.80}
+  },
+  "Transparency": {
+    "omission_rate": 0.15,
+    "proactive_disclosure": 3.2,
+    "self_report_honesty": 0.85
+  },
+  "TemporalConsistency": {
+    "recall_drift": 0.08,
+    "statement_persistence": 0.88
+  }
+}
